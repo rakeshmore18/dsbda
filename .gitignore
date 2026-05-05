@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Excel files
+*.xls
+*.xlsx
+
+# Python files
+*.py
+
+# Environment variables (just in case you add one later)
+.env
