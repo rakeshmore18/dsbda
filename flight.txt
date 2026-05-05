@@ -1,0 +1,103 @@
+-----------------------------------------------
+FLIGHT INFORMATION SYSTEM USING HIVEQL
+-----------------------------------------------
+
+-------------------------------
+STEP A: CREATE DATABASE & TABLE
+-------------------------------
+CREATE DATABASE IF NOT EXISTS flight_db;
+USE flight_db;
+
+CREATE TABLE flights (
+  flight_id INT,
+  airline STRING,
+  source STRING,
+  destination STRING,
+  departure_delay INT,
+  arrival_delay INT,
+  flight_date STRING
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ',';
+
+
+-------------------------------
+STEP A: ALTER & DROP TABLE
+-------------------------------
+ALTER TABLE flights ADD COLUMNS (status STRING);
+
+ALTER TABLE flights CHANGE airline airline_name STRING;
+
+DROP TABLE IF EXISTS temp_flights;
+
+
+-------------------------------
+STEP B: CREATE EXTERNAL TABLE
+-------------------------------
+CREATE EXTERNAL TABLE flights_ext (
+  flight_id INT,
+  airline STRING,
+  source STRING,
+  destination STRING,
+  departure_delay INT,
+  arrival_delay INT,
+  flight_date STRING
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION '/user/hadoop/flights_data';
+
+
+-------------------------------
+STEP C: LOAD, INSERT, JOIN
+-------------------------------
+
+-- Load data into table
+LOAD DATA INPATH '/user/hadoop/flights.csv'
+INTO TABLE flights;
+
+-- Insert new record
+INSERT INTO flights VALUES
+(101, 'Indigo', 'Mumbai', 'Delhi', 10, 5, '2008-01-01', 'On Time');
+
+-- Create airlines table
+CREATE TABLE airlines (
+  airline_id STRING,
+  airline_name STRING
+);
+
+-- Insert into airlines
+INSERT INTO airlines VALUES
+('Indigo', 'Indigo Airlines'),
+('AirIndia', 'Air India');
+
+-- Join tables
+SELECT f.flight_id, f.airline_name, a.airline_name
+FROM flights f
+JOIN airlines a
+ON f.airline_name = a.airline_id;
+
+
+-------------------------------
+STEP D: CREATE INDEX
+-------------------------------
+CREATE INDEX flight_index
+ON TABLE flights (airline_name)
+AS 'COMPACT'
+WITH DEFERRED REBUILD;
+
+ALTER INDEX flight_index ON flights REBUILD;
+
+
+-------------------------------
+STEP E: AVERAGE DEPARTURE DELAY (2008)
+-------------------------------
+SELECT flight_date, AVG(departure_delay) AS avg_delay
+FROM flights
+WHERE flight_date LIKE '2008%'
+GROUP BY flight_date;
+
+
+-----------------------------------------------
+END OF PRACTICAL
+-----------------------------------------------
