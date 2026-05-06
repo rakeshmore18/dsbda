@@ -1,4 +1,5 @@
 const http = require('http');
+require('dotenv').config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fs = require('fs');
 const path = require('path');
@@ -7,7 +8,12 @@ const PORT = 3000;
 const IPYNB_DIR = __dirname;
 
 // Initialize the official Google SDK with your API key
-const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyAVK40DFU-_7-xH9SUBdhmlc4NrJd_kIzI';
+const apiKey = process.env.GEMINI_API_KEY;
+
+if (!apiKey) {
+    console.warn("WARNING: GEMINI_API_KEY environment variable is not set.");
+}
+
 const genAI = new GoogleGenerativeAI(apiKey);
 
 async function askQuestion(question) {
